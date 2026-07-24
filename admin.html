@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel — meu-hub</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="dot-grid">
+
+<div class="topbar">
+  <div class="brand"><span class="dot"></span> meu-hub</div>
+  <div class="tabs">
+    <a class="tab" href="index.html">home</a>
+    <a class="tab" href="docs.html">docs<span class="tag">md</span></a>
+    <a class="tab" href="biblioteca.html">biblioteca</a>
+    <a class="tab" href="social.html">redes_sociais</a>
+    <a class="tab active" href="admin.html">painel</a>
+  </div>
+</div>
+
+<div class="page" style="max-width:760px;">
+  <div class="section-head">
+    <h1>Painel</h1>
+    <p>Publique um sistema novo direto daqui. Isso salva os arquivos no seu repositório do GitHub automaticamente — o site atualiza sozinho em 1-2 minutos.</p>
+  </div>
+
+  <!-- CONFIGURAÇÃO -->
+  <div class="admin-box">
+    <div class="config-state" id="configState"><span class="dot"></span><span id="configStateText">ainda não configurado</span></div>
+    <h2>1. Configuração (só uma vez)</h2>
+    <p class="hint">
+      Você precisa de um <b>token</b> do GitHub para o painel poder publicar por você. Isso é como uma senha exclusiva para este repositório. Ela fica guardada só neste navegador — nunca é enviada pra mim nem pra ninguém além do GitHub.
+    </p>
+    <ol class="steps-list">
+      <li>Acesse <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> (token "fine-grained").</li>
+      <li>Em <b>Repository access</b>, escolha <b>Only select repositories</b> e selecione o repositório do seu site.</li>
+      <li>Em <b>Permissions → Repository permissions</b>, ache <b>Contents</b> e mude para <b>Read and write</b>.</li>
+      <li>Clique em <b>Generate token</b> e copie o código gerado (começa com <code>github_pat_...</code>).</li>
+    </ol>
+
+    <div class="field">
+      <label>Usuário ou organização do GitHub</label>
+      <input id="cfgOwner" placeholder="ex: joaosilva">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Nome do repositório</label>
+        <input id="cfgRepo" placeholder="ex: meu-hub">
+      </div>
+      <div class="field">
+        <label>Branch</label>
+        <input id="cfgBranch" placeholder="main" value="main">
+      </div>
+    </div>
+    <div class="field">
+      <label>Token</label>
+      <input id="cfgToken" type="password" placeholder="github_pat_...">
+    </div>
+    <button class="btn primary" onclick="saveConfig()">Salvar configuração</button>
+    <button class="btn" onclick="clearConfig()">Limpar</button>
+    <div id="configStatus" class="status-msg"></div>
+  </div>
+
+  <!-- NOVO SISTEMA -->
+  <div class="admin-box">
+    <h2>2. Publicar um sistema novo</h2>
+    <p class="hint">Cole o link do Release com o arquivo do sistema e preencha as informações. A documentação é opcional — se deixar em branco, o painel cria uma página simples que você pode melhorar depois.</p>
+
+    <div class="field">
+      <label>Nome do sistema</label>
+      <input id="newTitle" placeholder="ex: Save System">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Versão</label>
+        <input id="newVersion" placeholder="ex: v1.0.0" value="v1.0.0">
+      </div>
+      <div class="field">
+        <label>Tamanho do arquivo</label>
+        <input id="newSize" placeholder="ex: 40 KB">
+      </div>
+    </div>
+    <div class="field">
+      <label>Descrição curta (aparece na Biblioteca)</label>
+      <input id="newDesc" placeholder="ex: Salva e carrega o progresso do jogador em arquivo.">
+    </div>
+    <div class="field">
+      <label>Link de download (link direto do arquivo na Release do GitHub)</label>
+      <input id="newUrl" placeholder="https://github.com/SEU-USUARIO/SEU-REPO/releases/download/...">
+    </div>
+    <div class="field">
+      <label>Documentação (markdown — opcional)</label>
+      <textarea id="newDocs" placeholder="# Save System&#10;&#10;Como usar, exemplos de código, imagens..."></textarea>
+    </div>
+
+    <button class="btn primary" onclick="publishSystem()">Publicar sistema ↑</button>
+    <div id="publishStatus" class="status-msg"></div>
+  </div>
+
+  <!-- LISTA / REMOVER -->
+  <div class="admin-box">
+    <h2>Sistemas já publicados</h2>
+    <button class="btn" onclick="loadPublished()" style="margin-bottom:16px;">Atualizar lista</button>
+    <div id="publishedList" class="published-list"></div>
+  </div>
+</div>
+
+<footer>© <span id="year"></span> meu-hub — feito com GameMaker Studio 2</footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ============ CONFIG (localStorage só deste navegador) ============ */
+function getConfig(){
+  return {
+    owner: localStorage.getItem('gh_owner') || '',
+    repo: localStorage.getItem('gh_repo') || '',
+    branch: localStorage.getItem('gh_branch') || 'main',
+    token: localStorage.getItem('gh_token') || ''
+  };
+}
+function isConfigured(){
+  const c = getConfig();
+  return c.owner && c.repo && c.token;
+}
+function refreshConfigState(){
+  const el = document.getElementById('configState');
+  const txt = document.getElementById('configStateText');
+  if (isConfigured()){
+    el.classList.add('ready');
+    txt.textContent = `conectado a ${getConfig().owner}/${getConfig().repo}`;
+  } else {
+    el.classList.remove('ready');
+    txt.textContent = 'ainda não configurado';
+  }
+}
+function loadConfigIntoForm(){
+  const c = getConfig();
+  document.getElementById('cfgOwner').value = c.owner;
+  document.getElementById('cfgRepo').value = c.repo;
+  document.getElementById('cfgBranch').value = c.branch;
+  document.getElementById('cfgToken').value = c.token;
+}
+function saveConfig(){
+  localStorage.setItem('gh_owner', document.getElementById('cfgOwner').value.trim());
+  localStorage.setItem('gh_repo', document.getElementById('cfgRepo').value.trim());
+  localStorage.setItem('gh_branch', document.getElementById('cfgBranch').value.trim() || 'main');
+  localStorage.setItem('gh_token', document.getElementById('cfgToken').value.trim());
+  refreshConfigState();
+  showStatus('configStatus', 'ok', 'Configuração salva neste navegador.');
+  loadPublished();
+}
+function clearConfig(){
+  ['gh_owner','gh_repo','gh_branch','gh_token'].forEach(k => localStorage.removeItem(k));
+  document.getElementById('cfgOwner').value = '';
+  document.getElementById('cfgRepo').value = '';
+  document.getElementById('cfgBranch').value = 'main';
+  document.getElementById('cfgToken').value = '';
+  refreshConfigState();
+  showStatus('configStatus', 'ok', 'Configuração removida.');
+}
+
+function showStatus(id, kind, msg){
+  const el = document.getElementById(id);
+  el.className = 'status-msg show ' + kind;
+  el.textContent = msg;
+}
+
+/* ============ Helpers base64 (UTF-8 seguro) ============ */
+function toBase64(str){ return btoa(unescape(encodeURIComponent(str))); }
+function fromBase64(b64){ return decodeURIComponent(escape(atob(b64))); }
+
+function slugify(str){
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase().trim()
+    .replace(/[^a-z0-9]+/g,'-')
+    .replace(/(^-|-$)/g,'');
+}
+
+/* ============ GitHub API ============ */
+function apiUrl(path){
+  const c = getConfig();
+  return `https://api.github.com/repos/${c.owner}/${c.repo}/contents/${path}`;
+}
+function ghHeaders(){
+  return {
+    'Authorization': 'Bearer ' + getConfig().token,
+    'Accept': 'application/vnd.github+json'
+  };
+}
+async function ghGetFile(path){
+  const res = await fetch(apiUrl(path) + `?ref=${getConfig().branch}`, { headers: ghHeaders() });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`Erro ao ler ${path}: ${res.status}`);
+  const data = await res.json();
+  return { sha: data.sha, content: fromBase64(data.content.replace(/\n/g,'')) };
+}
+async function ghPutFile(path, content, message, sha){
+  const body = { message, content: toBase64(content), branch: getConfig().branch };
+  if (sha) body.sha = sha;
+  const res = await fetch(apiUrl(path), { method:'PUT', headers: ghHeaders(), body: JSON.stringify(body) });
+  if (!res.ok){
+    const err = await res.json().catch(()=>({}));
+    throw new Error(err.message || `Erro ao salvar ${path}: ${res.status}`);
+  }
+  return res.json();
+}
+async function ghDeleteFile(path, message, sha){
+  const res = await fetch(apiUrl(path), {
+    method:'DELETE', headers: ghHeaders(),
+    body: JSON.stringify({ message, sha, branch: getConfig().branch })
+  });
+  if (!res.ok) throw new Error(`Erro ao apagar ${path}: ${res.status}`);
+}
+
+/* ============ Publicar sistema ============ */
+async function publishSystem(){
+  if (!isConfigured()){
+    showStatus('publishStatus', 'err', 'Preencha a configuração (passo 1) antes de publicar.');
+    return;
+  }
+  const title = document.getElementById('newTitle').value.trim();
+  const version = document.getElementById('newVersion').value.trim() || 'v1.0.0';
+  const size = document.getElementById('newSize').value.trim() || '—';
+  const desc = document.getElementById('newDesc').value.trim();
+  const url = document.getElementById('newUrl').value.trim();
+  const docsText = document.getElementById('newDocs').value.trim();
+
+  if (!title || !desc || !url){
+    showStatus('publishStatus', 'err', 'Preencha ao menos nome, descrição e link de download.');
+    return;
+  }
+
+  const slug = slugify(title);
+  const docPath = `docs/${slug}.md`;
+  const finalDocs = docsText || `# ${title}\n\nDocumentação em breve.`;
+
+  showStatus('publishStatus', 'loading', 'Publicando... isso pode levar alguns segundos.');
+
+  try{
+    // 1. cria/atualiza o arquivo .md da documentação
+    const existingDoc = await ghGetFile(docPath);
+    await ghPutFile(docPath, finalDocs, `docs: publicar ${title}`, existingDoc ? existingDoc.sha : undefined);
+
+    // 2. atualiza docs/manifest.json
+    const docsManifestFile = await ghGetFile('docs/manifest.json');
+    let docsManifest = docsManifestFile ? JSON.parse(docsManifestFile.content) : [];
+    docsManifest = docsManifest.filter(d => d.id !== slug);
+    docsManifest.push({ id: slug, title, file: docPath });
+    await ghPutFile('docs/manifest.json', JSON.stringify(docsManifest, null, 2),
+      `docs: registrar ${title}`, docsManifestFile ? docsManifestFile.sha : undefined);
+
+    // 3. atualiza library-manifest.json
+    const libFile = await ghGetFile('library-manifest.json');
+    let lib = libFile ? JSON.parse(libFile.content) : [];
+    lib = lib.filter(item => slugify(item.title) !== slug);
+    lib.push({ title, version, description: desc, size, docId: slug, downloadUrl: url });
+    await ghPutFile('library-manifest.json', JSON.stringify(lib, null, 2),
+      `biblioteca: publicar ${title}`, libFile ? libFile.sha : undefined);
+
+    showStatus('publishStatus', 'ok', `"${title}" publicado! O site atualiza em cerca de 1 minuto.`);
+    document.getElementById('newTitle').value = '';
+    document.getElementById('newVersion').value = 'v1.0.0';
+    document.getElementById('newSize').value = '';
+    document.getElementById('newDesc').value = '';
+    document.getElementById('newUrl').value = '';
+    document.getElementById('newDocs').value = '';
+    loadPublished();
+  }catch(err){
+    showStatus('publishStatus', 'err', 'Erro: ' + err.message);
+  }
+}
+
+/* ============ Lista + remover ============ */
+async function loadPublished(){
+  const listEl = document.getElementById('publishedList');
+  if (!isConfigured()){
+    listEl.innerHTML = '<p class="docs-empty">// configure o painel acima primeiro.</p>';
+    return;
+  }
+  listEl.innerHTML = '<p class="docs-empty">// carregando...</p>';
+  try{
+    const libFile = await ghGetFile('library-manifest.json');
+    const lib = libFile ? JSON.parse(libFile.content) : [];
+    if (lib.length === 0){
+      listEl.innerHTML = '<p class="docs-empty">// nenhum sistema publicado ainda.</p>';
+      return;
+    }
+    listEl.innerHTML = '';
+    lib.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'published-item';
+      row.innerHTML = `
+        <div class="info"><b>${item.title}</b><span>${item.version} · ${item.size || ''}</span></div>
+        <button>Remover</button>
+      `;
+      row.querySelector('button').onclick = () => removeSystem(item);
+      listEl.appendChild(row);
+    });
+  }catch(err){
+    listEl.innerHTML = `<p class="docs-empty">// erro ao carregar: ${err.message}</p>`;
+  }
+}
+
+async function removeSystem(item){
+  if (!confirm(`Remover "${item.title}" do site?`)) return;
+  const slug = item.docId || slugify(item.title);
+  try{
+    const libFile = await ghGetFile('library-manifest.json');
+    let lib = JSON.parse(libFile.content).filter(i => (i.docId || slugify(i.title)) !== slug);
+    await ghPutFile('library-manifest.json', JSON.stringify(lib, null, 2), `biblioteca: remover ${item.title}`, libFile.sha);
+
+    const docsManifestFile = await ghGetFile('docs/manifest.json');
+    if (docsManifestFile){
+      let docsManifest = JSON.parse(docsManifestFile.content).filter(d => d.id !== slug);
+      await ghPutFile('docs/manifest.json', JSON.stringify(docsManifest, null, 2), `docs: remover ${item.title}`, docsManifestFile.sha);
+    }
+
+    const docFile = await ghGetFile(`docs/${slug}.md`);
+    if (docFile) await ghDeleteFile(`docs/${slug}.md`, `docs: remover ${item.title}`, docFile.sha);
+
+    loadPublished();
+  }catch(err){
+    alert('Erro ao remover: ' + err.message);
+  }
+}
+
+/* init */
+loadConfigIntoForm();
+refreshConfigState();
+loadPublished();
+</script>
+</body>
+</html>

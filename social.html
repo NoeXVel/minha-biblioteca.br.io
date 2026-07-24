@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redes Sociais — meu-hub</title>
+<meta name="description" content="Onde me encontrar: redes sociais e contato.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="dot-grid">
+
+<div class="topbar">
+  <div class="brand"><span class="dot"></span> meu-hub</div>
+  <div class="tabs">
+    <a class="tab" href="index.html">home</a>
+    <a class="tab" href="docs.html">docs<span class="tag">md</span></a>
+    <a class="tab" href="biblioteca.html">biblioteca</a>
+    <a class="tab active" href="social.html">redes_sociais</a>
+  </div>
+</div>
+
+<div class="page">
+  <div class="section-head">
+    <h1>Redes Sociais</h1>
+    <p>Me acompanhe nessas redes para novidades sobre novos sistemas e updates.</p>
+  </div>
+
+  <!-- ====== EDITE AQUI: troque os links e nomes pelas suas redes ====== -->
+  <div class="social-grid">
+    <a class="social-card" href="https://youtube.com/@SEU-CANAL" target="_blank" rel="noopener">
+      <div class="social-icon">YT</div>
+      <div><h3>YouTube</h3><span>@SEU-CANAL</span></div>
+    </a>
+    <a class="social-card" href="https://instagram.com/SEU-USUARIO" target="_blank" rel="noopener">
+      <div class="social-icon">IG</div>
+      <div><h3>Instagram</h3><span>@SEU-USUARIO</span></div>
+    </a>
+    <a class="social-card" href="https://x.com/SEU-USUARIO" target="_blank" rel="noopener">
+      <div class="social-icon">X</div>
+      <div><h3>X / Twitter</h3><span>@SEU-USUARIO</span></div>
+    </a>
+    <a class="social-card" href="https://discord.gg/SEU-CONVITE" target="_blank" rel="noopener">
+      <div class="social-icon">DC</div>
+      <div><h3>Discord</h3><span>Comunidade / suporte</span></div>
+    </a>
+    <a class="social-card" href="https://github.com/SEU-USUARIO" target="_blank" rel="noopener">
+      <div class="social-icon">GH</div>
+      <div><h3>GitHub</h3><span>Código-fonte dos sistemas</span></div>
+    </a>
+  </div>
+</div>
+
+<footer>© <span id="year"></span> meu-hub — feito com GameMaker Studio 2 · <a href="admin.html">painel</a></footer>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

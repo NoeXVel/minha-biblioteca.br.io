@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblioteca — meu-hub</title>
+<meta name="description" content="Baixe sistemas prontos feitos em GameMaker Studio 2.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="dot-grid">
+
+<div class="topbar">
+  <div class="brand"><span class="dot"></span> meu-hub</div>
+  <div class="tabs">
+    <a class="tab" href="index.html">home</a>
+    <a class="tab" href="docs.html">docs<span class="tag">md</span></a>
+    <a class="tab active" href="biblioteca.html">biblioteca</a>
+    <a class="tab" href="social.html">redes_sociais</a>
+  </div>
+</div>
+
+<div class="page">
+  <div class="section-head">
+    <h1>Biblioteca</h1>
+    <p>Sistemas prontos para baixar e importar direto no GameMaker Studio 2.</p>
+  </div>
+
+  <div id="libGrid" class="lib-grid"></div>
+</div>
+
+<footer>© <span id="year"></span> meu-hub — feito com GameMaker Studio 2 · <a href="admin.html">painel</a></footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+async function loadLibrary(){
+  const grid = document.getElementById('libGrid');
+  try{
+    const res = await fetch('library-manifest.json');
+    const items = await res.json();
+
+    if (items.length === 0){
+      grid.innerHTML = '<p class="docs-empty">// nenhum sistema publicado ainda.</p>';
+      return;
+    }
+
+    grid.innerHTML = items.map(item => `
+      <div class="lib-card">
+        <div class="lib-card-top">
+          <h3>${item.title}</h3>
+          <span class="version-tag">${item.version}</span>
+        </div>
+        <p>${item.description}</p>
+        <div class="lib-card-footer">
+          <span class="lib-meta">${item.size}</span>
+          <div style="display:flex; gap:8px;">
+            ${item.docId ? `<a class="btn" href="docs.html#${item.docId}">docs</a>` : ''}
+            <a class="btn primary" href="${item.downloadUrl}" download>Baixar ↓</a>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }catch(err){
+    grid.innerHTML = '<p class="docs-empty">// não foi possível carregar a biblioteca.</p>';
+  }
+}
+
+loadLibrary();
+</script>
+</body>
+</html>

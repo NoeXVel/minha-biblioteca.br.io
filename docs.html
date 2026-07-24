@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docs — meu-hub</title>
+<meta name="description" content="Documentação dos sistemas em GameMaker Studio 2.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="dot"></span> meu-hub</div>
+  <div class="tabs">
+    <a class="tab" href="index.html">home</a>
+    <a class="tab active" href="docs.html">docs<span class="tag">md</span></a>
+    <a class="tab" href="biblioteca.html">biblioteca</a>
+    <a class="tab" href="social.html">redes_sociais</a>
+  </div>
+</div>
+
+<div class="docs-layout">
+  <aside class="docs-sidebar">
+    <div class="docs-sidebar-title">Sistemas</div>
+    <input class="docs-search" id="docSearch" placeholder="Buscar sistema...">
+    <div id="docList"></div>
+  </aside>
+
+  <main class="docs-main">
+    <div id="docContent" class="markdown-body">
+      <p class="docs-empty">// selecione um sistema na lista ao lado para ver a documentação</p>
+    </div>
+  </main>
+</div>
+
+<footer>© <span id="year"></span> meu-hub — feito com GameMaker Studio 2 · <a href="admin.html">painel</a></footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+let manifest = [];
+
+async function init(){
+  const res = await fetch('docs/manifest.json');
+  manifest = await res.json();
+  renderList(manifest);
+
+  const initial = location.hash ? location.hash.slice(1) : null;
+  if (initial) {
+    const found = manifest.find(d => d.id === initial);
+    if (found) loadDoc(found);
+  }
+}
+
+function renderList(items){
+  const listEl = document.getElementById('docList');
+  listEl.innerHTML = '';
+  items.forEach(doc => {
+    const a = document.createElement('a');
+    a.className = 'doc-item';
+    a.href = '#' + doc.id;
+    a.innerHTML = '<span class="dot"></span>' + doc.title;
+    a.onclick = (e) => { e.preventDefault(); loadDoc(doc); };
+    listEl.appendChild(a);
+  });
+}
+
+async function loadDoc(doc){
+  document.querySelectorAll('.doc-item').forEach(el => el.classList.remove('active'));
+  const active = [...document.querySelectorAll('.doc-item')].find(el => el.getAttribute('href') === '#' + doc.id);
+  if (active) active.classList.add('active');
+
+  history.replaceState(null, '', '#' + doc.id);
+  const contentEl = document.getElementById('docContent');
+  contentEl.innerHTML = '<p class="docs-empty">// carregando...</p>';
+
+  try{
+    const res = await fetch(doc.file);
+    const md = await res.text();
+    contentEl.innerHTML = marked.parse(md);
+  }catch(err){
+    contentEl.innerHTML = '<p class="docs-empty">// não foi possível carregar este documento.</p>';
+  }
+}
+
+document.getElementById('docSearch').addEventListener('input', (e) => {
+  const q = e.target.value.toLowerCase();
+  renderList(manifest.filter(d => d.title.toLowerCase().includes(q)));
+});
+
+init();
+</script>
+</body>
+</html>

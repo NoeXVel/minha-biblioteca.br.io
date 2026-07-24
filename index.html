@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hub de Sistemas — GameMaker Studio 2</title>
+<meta name="description" content="Documentação, downloads e redes sociais de sistemas feitos em GameMaker Studio 2.">
+
+<!-- ====== EDITE AQUI PARA CONFIGURAR O SEU SITE ======
+     Troque o título, descrição e os cards abaixo pelos seus próprios sistemas.
+==================================================== -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="dot-grid">
+
+<div class="topbar">
+  <div class="brand"><span class="dot"></span> meu-hub</div>
+  <div class="tabs">
+    <a class="tab active" href="index.html">home</a>
+    <a class="tab" href="docs.html">docs<span class="tag">md</span></a>
+    <a class="tab" href="biblioteca.html">biblioteca</a>
+    <a class="tab" href="social.html">redes_sociais</a>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="hero-kicker">build: gamemaker studio 2</div>
+  <h1>Sistemas prontos para<br><span class="accent">colar no seu projeto.</span></h1>
+  <p>Documentação, exemplos e downloads dos sistemas que eu construo no GameMaker Studio 2 — tudo em um só lugar, atualizado direto daqui.</p>
+  <div class="hero-actions">
+    <a class="btn primary" href="biblioteca.html">Ver biblioteca ↓</a>
+    <a class="btn" href="docs.html">Abrir docs</a>
+  </div>
+
+  <div class="grid-cards">
+    <a class="card" href="docs.html#inventory-system">
+      <div class="path">docs/inventory-system.md</div>
+      <h3>Inventory System</h3>
+      <p>Sistema de inventário com slots, drag-and-drop e stacking.</p>
+    </a>
+    <a class="card" href="docs.html#dialogue-system">
+      <div class="path">docs/dialogue-system.md</div>
+      <h3>Dialogue System</h3>
+      <p>Caixas de diálogo com ramificações, retrato de personagens e typewriter effect.</p>
+    </a>
+    <a class="card" href="biblioteca.html">
+      <div class="path">biblioteca/</div>
+      <h3>Todos os downloads</h3>
+      <p>Lista completa de sistemas disponíveis para baixar agora.</p>
+    </a>
+  </div>
+</section>
+
+<footer>© <span id="year"></span> meu-hub — feito com GameMaker Studio 2 · <a href="admin.html">painel</a></footer>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
