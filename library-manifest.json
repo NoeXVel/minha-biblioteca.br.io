@@ -1,18 +1,1 @@
-[
-  {
-    "title": "Inventory System",
-    "version": "v1.2.0",
-    "description": "Sistema de inventário com slots, stacking e drag-and-drop.",
-    "size": "84 KB",
-    "docId": "inventory-system",
-    "downloadUrl": "https://github.com/SEU-USUARIO/SEU-REPO/releases/download/v1.2.0/inventory-system.yymps"
-  },
-  {
-    "title": "Dialogue System",
-    "version": "v1.0.3",
-    "description": "Caixas de diálogo com ramificações e efeito typewriter.",
-    "size": "51 KB",
-    "docId": "dialogue-system",
-    "downloadUrl": "https://github.com/SEU-USUARIO/SEU-REPO/releases/download/v1.0.3/dialogue-system.yymps"
-  }
-]
+
