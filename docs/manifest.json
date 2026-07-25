@@ -3,5 +3,10 @@
     "id": "dialogue-systemx",
     "title": "Dialogue SystemX",
     "file": "docs/dialogue-systemx.md"
+  },
+    {
+    "id": "dialogue-systemxv120",
+    "title": "Dialogue SystemX v1.2.0",
+    "file": "docs/dialogue-systemxv120.md"
   }
 ]
